@@ -1,0 +1,8 @@
+## Ver 1.1
+- Added new features:
+  - theme switch
+  - customized xp gain per message
+- Removed activity presets feature
+- optimized performance and fixed bugs
+## Ver 1.0
+- initial release

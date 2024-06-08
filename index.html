@@ -20,197 +20,94 @@
             filter: grayscale(100%);
             pointer-events: none;
         }
+        .dark-mode {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+        .dark-mode .section {
+            border-color: #555;
+        }
+        #credits {
+            text-align: center;
+            font-style: italic;
+        }
+        #updateLogs {
+            display: none;
+        }
     </style>
 </head>
 <body>
-
 <h2>Arcane Level Calculator Deluxe</h2>
 <form>
   <table>
-    <tr>
-      <td>Your current level:</td>
-      <td><input type="number" id="currentLevel" name="currentLevel" min="0" value="0" oninput="updateForm()"></td>
-      <td>Your desired level:</td>
-      <td><input type="number" id="desiredLevel" name="desiredLevel" min="1" value="" oninput="updateForm()"></td>
-    </tr>
-    <tr>
-      <td>Your current XP*:</td>
-      <td colspan="3"><input type="number" id="currentXP" name="currentXP" min="0" value="0" style="width: 100%;" oninput="updateForm()"></td>
-    </tr>
-    <tr>
-      <td>Messages sent:</td>
-      <td colspan="3"><input type="number" id="messageCount" name="messageCount" min="0" value="0" style="width: 100%;" oninput="updateForm()"></td>
-    </tr>
-    <tr>
-      <td>Min XP per message:</td>
-      <td><input type="number" id="minXP" name="minXP" min="1" value="15" oninput="updateForm()"></td>
-      <td>Max XP per message:</td>
-      <td><input type="number" id="maxXP" name="maxXP" min="1" value="40" oninput="updateForm()"></td>
-    </tr>
-    <tr>
-      <td>XP Boost (%):</td>
-      <td colspan="3"><input type="number" id="xpBoost" name="xpBoost" min="0" value="0" style="width: 100%;" oninput="updateForm()"></td>
-    </tr>
-    <tr>
-      <td>Message cooldown (minutes):</td>
-      <td colspan="3"><input type="number" id="msgInterval" name="msgInterval" min="1" value="1" style="width: 100%;" oninput="updateForm()"></td>
-    </tr>
-    <tr>
-      <td>Activity Presets:</td>
-      <td colspan="3">
-        <input type="range" id="activityLevel" name="activityLevel" min="1" max="3" value="2" oninput="updateForm()">
-        <label for="activityLevel">Realisic active level from 1 (highest) to 3 (lowest)</label>
-      </td>
-    </tr>
-    <tr>
-      <td>TotKcord role presets:</td>
-      <td colspan="3">
-        <select id="levelReward" name="levelReward" onchange="updateForm()">
-          <option value="None">(None)</option>
-          <option value="Member">Member (1)</option>
-          <option value="Traveler">Traveler (3)</option>
-          <option value="Adventurer">Adventurer (6)</option>
-          <option value="Knight">Knight (10)</option>
-          <option value="Elder">Elder (15)</option>
-          <option value="Royal">Royal (20)</option>
-          <option value="Guardian">Guardian (30)</option>
-          <option value="Champion">Champion (40)</option>
-          <option value="Hero of the Wild">Hero of the Wild (50)</option>
-          <option value="Legend of the Wild">Legend of the Wild (75)</option>
-          <option value="Hero of the Kingdom">Hero of the Kingdom (100)</option>
-        </select>
-      </td>
-    </tr>
+    <tr><td>Your current level:</td><td><input type="number" id="currentLevel" min="0" value="0" oninput="updateForm()"></td><td>Your desired level:</td><td><input type="number" id="desiredLevel" min="1" oninput="updateForm()"></td></tr>
+    <tr><td>Your current XP*:</td><td colspan="3"><input type="number" id="currentXP" min="0" value="0" style="width: 100%;" oninput="updateForm()"></td></tr>
+    <tr><td>Messages sent:</td><td colspan="3"><input type="number" id="messageCount" min="0" value="0" style="width: 100%;" oninput="updateForm()"></td></tr>
+    <tr><td>Min XP per message:</td><td><input type="number" id="minXP" min="1" value="15" oninput="updateForm()"></td><td>Max XP per message:</td><td><input type="number" id="maxXP" min="1" value="40" oninput="updateForm()"></td></tr>
+    <tr><td>XP Boost (%):</td><td colspan="3"><input type="number" id="xpBoost" min="0" value="0" style="width: 100%;" oninput="updateForm()"></td></tr>
+    <tr><td>Message cooldown (minutes):</td><td colspan="3"><input type="number" id="msgInterval" min="1" value="1" style="width: 100%;" oninput="updateForm()"></td></tr>
+    <tr><td>TotKcord role presets:</td><td colspan="3"><select id="levelReward" onchange="updateForm()"><option value="None">(None)</option><option value="Member">Member (1)</option><option value="Traveler">Traveler (3)</option><option value="Adventurer">Adventurer (6)</option><option value="Knight">Knight (10)</option><option value="Elder">Elder (15)</option><option value="Royal">Royal (20)</option><option value="Guardian">Guardian (30)</option><option value="Champion">Champion (40)</option><option value="Hero of the Wild">Hero of the Wild (50)</option><option value="Legend of the Wild">Legend of the Wild (75)</option><option value="Hero of the Kingdom">Hero of the Kingdom (100)</option></select></td></tr>
+    <tr><td>Use custom XP per message:</td><td colspan="3"><input type="checkbox" id="useCustomXP" onchange="toggleCustomXP()"></td></tr>
+    <tr id="customXPRow" style="display:none;"><td>XP per message:</td><td colspan="3"><input type="range" id="xpRange" min="15" max="40" value="27" oninput="updateRange()"><span id="xpRangeValue">27</span></td></tr>
   </table>
 </form>
-
+<label>Theme:</label><select id="themeToggle" onchange="toggleTheme()"><option value="system">System default</option><option value="dark">Dark</option><option value="light">Light</option></select>
 <p>*This is the number in your level card that says XP: xx.xK/xx.xK. Input the number that comes before the slash in digits (example: 2500, 10200).</p>
 
-<div id="overviewSection" class="section">
-  <h3>Overview</h3>
-  <p>Total XP required for level <span id="totalXPLevel">100</span>: <span id="totalXPRequired">0</span></p>
-  <p>Your current XP: <span id="currentTotalXP">0</span></p>
-  <p>XP left to reach level <span id="destLevelOutput">100</span>: <span id="requiredXP">0</span></p>
-</div>
+<div id="overviewSection" class="section"><h3>Overview</h3><p>Total XP required for level <span id="totalXPLevel">100</span>: <span id="totalXPRequired">0</span></p><p>Your current XP: <span id="currentTotalXP">0</span></p><p>XP left to reach level <span id="destLevelOutput">100</span>: <span id="requiredXP">0</span></p><p>XP left to reach next level (level <span id="nextLevel">0</span>): <span id="xpToNextLevel">0</span></p></div>
+<div id="progressSection" class="section"><h3>Progress</h3><p>Overall progress: <span id="progressPercent">0</span>%</p><div style="width: 100%; background-color: #e0e0e0;"><div id="progressBar" style="width: 0%; height: 30px; background-color: #76c7c0;"></div></div><p>Current level progress: <span id="currentLevelProgressPercent">0</span>%</p><div style="width: 100%; background-color: #e0e0e0;"><div id="currentLevelProgressBar" style="width: 0%; height: 30px; background-color: #76c7c0;"></div></div></div>
+<div id="levelsSection" class="section"><h3>Possible levels</h3><p>Min achievable: <span id="minLevel">0</span></p><p>Avg achievable: <span id="avgLevel">0</span></p><p>Max achievable: <span id="maxLevel">0</span></p></div>
+<div id="messagesSection" class="section"><h3>Messages</h3><p id="minMessages">Min required: <span>0</span></p><p id="avgMessages">Avg required: <span>0</span></p><p id="maxMessages">Max required: <span>0</span></p><p id="customMessageCount" style="display:none;">Messages required to reach level <span id="customLevel">0</span>, if each message grants you <span id="customXP">0</span> XP: <span id="customMessages">0</span></p></div>
+<div id="timeSection" class="section"><h3>Time</h3><p>Fastest as possible: <span id="fastestTime">0</span></p><p id="realisticTimeP">Realistically (with one message per 15 minutes): <span id="realisticTime">0</span></p></div>
 
-<div id="progressSection" class="section">
-  <h3>Progress</h3>
-  <p>Overall progress: <span id="progressPercent">0</span>%</p>
-  <div style="width: 100%; background-color: #e0e0e0;">
-    <div id="progressBar" style="width: 0%; height: 30px; background-color: #76c7c0;"></div>
-  </div>
-  <p>Current level progress: <span id="currentLevelProgressPercent">0</span>%</p>
-  <div style="width: 100%; background-color: #e0e0e0;">
-    <div id="currentLevelProgressBar" style="width: 0%; height: 30px; background-color: #76c7c0;"></div>
-  </div>
-</div>
-
-<div id="levelsSection" class="section">
-  <h3>Possible levels</h3>
-  <p>Min achievable: <span id="minLevel">0</span></p>
-  <p>Avg achievable: <span id="avgLevel">0</span></p>
-  <p>Max achievable: <span id="maxLevel">0</span></p>
-</div>
-
-<div id="messagesSection" class="section">
-  <h3>Messages</h3>
-  <p>Min required: <span id="minMessages">0</span></p>
-  <p>Avg required: <span id="avgMessages">0</span></p>
-  <p>Max required: <span id="maxMessages">0</span></p>
-</div>
-
-<div id="timeSection" class="section">
-  <h3>Time</h3>
-  <p>Fastest as possible: <span id="fastestTime">0</span></p>
-  <h4>Based on activity settings</h4>
-  <p>Min time: <span id="minTime">0</span></p>
-  <p>Avg time: <span id="avgTime">0</span></p>
-  <p>Max time: <span id="maxTime">0</span></p>
-</div>
-
-<p style="text-align: center; font-style: italic;">Made by futuremachine on Discord. Version 1.0</p>
+<div id="credits"><p>Made by futuremachine on Discord. <b>Version 1.1</b></p><p style="font-size: 0.8em;">Code by ChatGPT</p></div>
+<button onclick="toggleLogs()">Show/Hide Update Logs</button>
+<div id="updateLogs" class="section"><h3>Update Logs</h3><ul id="logsList"></ul></div>
 
 <script>
-  const xpRequired = [0];
-  let xp = 75;
-  for (let i = 1; i <= 10000; i++) { // Extend beyond level 100
-    xpRequired.push(xpRequired[i - 1] + xp);
-    xp += 100;
-  }
+  const xpRequired = [0], xpIncrement = 75;
+  for (let i = 1; i <= 10000; i++) xpRequired.push(xpRequired[i - 1] + xpIncrement + 100 * (i - 1));
 
-  function formatTime(minutes) {
-    const timeUnits = [
-      { unit: 'year', minutes: 525600 },
-      { unit: 'month', minutes: 43800 },
-      { unit: 'week', minutes: 10080 },
-      { unit: 'day', minutes: 1440 },
-      { unit: 'hour', minutes: 60 },
-      { unit: 'minute', minutes: 1 }
-    ];
-    let remainingMinutes = minutes;
-    const timeString = timeUnits.map(({ unit, minutes: unitMinutes }) => {
-      const value = Math.floor(remainingMinutes / unitMinutes);
-      remainingMinutes %= unitMinutes;
-      return value > 0 ? `${value} ${unit}${value > 1 ? 's' : ''}` : '';
-    }).filter(Boolean).join(' ');
-    return timeString || '0 minutes';
-  }
+  const formatTime = minutes => [
+    { unit: 'year', minutes: 525600 }, { unit: 'month', minutes: 43800 }, { unit: 'week', minutes: 10080 },
+    { unit: 'day', minutes: 1440 }, { unit: 'hour', minutes: 60 }, { unit: 'minute', minutes: 1 }
+  ].map(({ unit, minutes: unitMinutes }) => {
+    const value = Math.floor(minutes / unitMinutes);
+    minutes %= unitMinutes;
+    return value > 0 ? `${value} ${unit}${value > 1 ? 's' : ''}` : '';
+  }).filter(Boolean).join(' ') || '0 minutes';
 
-  function calculateLevel(X, Y) {
-    const level = (-25 + Math.sqrt(625 + 200 * X * Y)) / 100;
-    return Math.floor(level);
-  }
+  const calculateLevel = (X, Y) => Math.floor((-25 + Math.sqrt(625 + 200 * X * Y)) / 100);
 
   function updateForm() {
     const levelReward = document.getElementById('levelReward').value;
     const desiredLevelInput = document.getElementById('desiredLevel');
-
-    if (levelReward !== 'None') {
-      desiredLevelInput.classList.add('greyscale');
-      desiredLevelInput.disabled = true;
-    } else {
-      desiredLevelInput.classList.remove('greyscale');
-      desiredLevelInput.disabled = false;
-    }
-
-    calculateXP();
-  }
-
-  function calculateXP() {
-    const currentLevel = parseInt(document.getElementById('currentLevel').value);
-    const currentXP = parseInt(document.getElementById('currentXP').value);
-    const desiredLevel = parseInt(document.getElementById('desiredLevel').value);
     const minXP = parseInt(document.getElementById('minXP').value);
     const maxXP = parseInt(document.getElementById('maxXP').value);
-    const avgXP = (minXP + maxXP) / 2;
-    const xpBoost = parseInt(document.getElementById('xpBoost').value) / 100 + 1;
-    const messageCount = parseInt(document.getElementById('messageCount').value);
-    const msgInterval = parseInt(document.getElementById('msgInterval').value);
-    const activityLevel = parseInt(document.getElementById('activityLevel').value);
-    const levelReward = document.getElementById('levelReward');
+    const xpRangeValue = parseInt(document.getElementById('xpRange').value);
+    document.getElementById('xpRange').min = minXP;
+    document.getElementById('xpRange').max = maxXP;
 
-    // Hide all sections initially
-    document.getElementById('overviewSection').style.display = 'none';
-    document.getElementById('progressSection').style.display = 'none';
-    document.getElementById('levelsSection').style.display = 'none';
-    document.getElementById('messagesSection').style.display = 'none';
-    document.getElementById('timeSection').style.display = 'none';
+    levelReward !== 'None' ? (desiredLevelInput.classList.add('greyscale'), desiredLevelInput.disabled = true) : (desiredLevelInput.classList.remove('greyscale'), desiredLevelInput.disabled = false);
 
-    // Determine target level based on role selection or desired level
+    const currentLevel = parseInt(document.getElementById('currentLevel').value),
+          currentXP = parseInt(document.getElementById('currentXP').value),
+          desiredLevel = parseInt(document.getElementById('desiredLevel').value),
+          avgXP = (minXP + maxXP) / 2,
+          xpBoost = parseInt(document.getElementById('xpBoost').value) / 100 + 1,
+          messageCount = parseInt(document.getElementById('messageCount').value),
+          msgInterval = parseInt(document.getElementById('msgInterval').value),
+          useCustomXP = document.getElementById('useCustomXP').checked,
+          levelRewardSelect = document.getElementById('levelReward');
+
     let targetLevel;
-    if (levelReward.value !== 'None') {
-      targetLevel = parseInt(levelReward.options[levelReward.selectedIndex].text.match(/\d+/)[0]);
-    } else {
-      targetLevel = desiredLevel;
-    }
+    if (levelRewardSelect.value !== 'None') targetLevel = parseInt(levelRewardSelect.options[levelRewardSelect.selectedIndex].text.match(/\d+/)[0]);
+    else targetLevel = desiredLevel;
+
+    document.querySelectorAll('.section').forEach(el => el.style.display = 'none');
 
     if (!isNaN(targetLevel) && targetLevel > 0) {
-      // Calculate total XP based on current level and XP
-      const currentTotalXP = xpRequired[currentLevel] + currentXP;
-      const targetXP = xpRequired[targetLevel];
-      const requiredXP = targetXP - currentTotalXP;
-      const progressPercent = (currentTotalXP / targetXP) * 100;
-
+      const currentTotalXP = xpRequired[currentLevel] + currentXP, targetXP = xpRequired[targetLevel], requiredXP = targetXP - currentTotalXP, progressPercent = (currentTotalXP / targetXP) * 100;
       document.getElementById('totalXPLevel').innerText = targetLevel;
       document.getElementById('totalXPRequired').innerText = targetXP.toLocaleString();
       document.getElementById('currentTotalXP').innerText = currentTotalXP.toLocaleString();
@@ -219,64 +116,47 @@
       document.getElementById('progressBar').style.width = progressPercent + '%';
       document.getElementById('destLevelOutput').innerText = targetLevel;
 
-      // Calculate current level progress
-      const currentLevelTotalXP = xpRequired[currentLevel + 1] - xpRequired[currentLevel];
-      const currentLevelProgressPercent = (currentXP / currentLevelTotalXP) * 100;
+      const currentLevelTotalXP = xpRequired[currentLevel + 1] - xpRequired[currentLevel], currentLevelProgressPercent = (currentXP / currentLevelTotalXP) * 100;
       document.getElementById('currentLevelProgressPercent').innerText = currentLevelProgressPercent.toFixed(2);
       document.getElementById('currentLevelProgressBar').style.width = currentLevelProgressPercent + '%';
 
-      // Calculate messages required to reach target level
-      const minMessages = Math.ceil(requiredXP / (maxXP * xpBoost));
-      const avgMessages = Math.ceil(requiredXP / (avgXP * xpBoost));
-      const maxMessages = Math.ceil(requiredXP / (minXP * xpBoost));
+      const nextLevel = currentLevel + 1, xpToNextLevel = xpRequired[nextLevel] - currentTotalXP;
+      document.getElementById('nextLevel').innerText = nextLevel;
+      document.getElementById('xpToNextLevel').innerText = xpToNextLevel.toLocaleString();
 
-      document.getElementById('minMessages').innerText = minMessages;
-      document.getElementById('avgMessages').innerText = avgMessages;
-      document.getElementById('maxMessages').innerText = maxMessages;
-
-      // Fastest time calculation
-      const fastestTime = formatTime(minMessages);
-      document.getElementById('fastestTime').innerText = fastestTime;
-
-      // Advanced calculations
-      if (!isNaN(minMessages) && !isNaN(avgMessages) && !isNaN(maxMessages)) {
-        const activityMultipliers = {1: 3, 2: 7, 3: 15};
-        const activityMultiplier = activityMultipliers[activityLevel];
-
-        const minTime = formatTime(minMessages * msgInterval * activityMultiplier);
-        const avgTime = formatTime(avgMessages * msgInterval * activityMultiplier);
-        const maxTime = formatTime(maxMessages * msgInterval * activityMultiplier);
-
-        document.getElementById('minTime').innerText = minTime;
-        document.getElementById('avgTime').innerText = avgTime;
-        document.getElementById('maxTime').innerText = maxTime;
+      const minMessages = Math.ceil(requiredXP / (maxXP * xpBoost)), avgMessages = Math.ceil(requiredXP / (avgXP * xpBoost)), maxMessages = Math.ceil(requiredXP / (minXP * xpBoost));
+      if (useCustomXP) {
+        const customMessages = Math.ceil(requiredXP / (xpRangeValue * xpBoost));
+        document.getElementById('customLevel').innerText = targetLevel;
+        document.getElementById('customXP').innerText = xpRangeValue;
+        document.getElementById('customMessages').innerText = customMessages;
+        document.getElementById('customMessageCount').style.display = 'block';
+        document.getElementById('minMessages').style.display = 'none';
+        document.getElementById('avgMessages').style.display = 'none';
+        document.getElementById('maxMessages').style.display = 'none';
       } else {
-        document.getElementById('minTime').innerText = "N/A";
-        document.getElementById('avgTime').innerText = "N/A";
-        document.getElementById('maxTime').innerText = "N/A";
+        document.getElementById('minMessages').style.display = 'block';
+        document.getElementById('avgMessages').style.display = 'block';
+        document.getElementById('maxMessages').style.display = 'block';
+        document.getElementById('customMessageCount').style.display = 'none';
+        document.getElementById('minMessages').innerText = `Min required: ${minMessages}`;
+        document.getElementById('avgMessages').innerText = `Avg required: ${avgMessages}`;
+        document.getElementById('maxMessages').innerText = `Max required: ${maxMessages}`;
       }
+      const fastestTime = formatTime(minMessages * msgInterval);
+      document.getElementById('fastestTime').innerText = fastestTime;
+      const realisticTime = formatTime(avgMessages * 15);
+      document.getElementById('realisticTimeP').style.display = msgInterval > 15 ? 'none' : 'block';
+      document.getElementById('realisticTime').innerText = realisticTime;
 
-      // Show sections
-      document.getElementById('overviewSection').style.display = 'block';
-      document.getElementById('progressSection').style.display = 'block';
-      document.getElementById('levelsSection').style.display = 'block';
-      document.getElementById('messagesSection').style.display = 'block';
-      document.getElementById('timeSection').style.display = 'block';
+      document.querySelectorAll('#overviewSection, #progressSection, #levelsSection, #messagesSection, #timeSection').forEach(el => el.style.display = 'block');
     } else if (!isNaN(messageCount) && messageCount > 0) {
-      // Only message count provided, calculate achievable levels
-      const minLevel = calculateLevel(messageCount, minXP * xpBoost);
-      const avgLevel = calculateLevel(messageCount, avgXP * xpBoost);
-      const maxLevel = calculateLevel(messageCount, maxXP * xpBoost);
-
+      const minLevel = calculateLevel(messageCount, minXP * xpBoost), avgLevel = calculateLevel(messageCount, avgXP * xpBoost), maxLevel = calculateLevel(messageCount, maxXP * xpBoost);
       document.getElementById('minLevel').innerText = minLevel;
       document.getElementById('avgLevel').innerText = avgLevel;
       document.getElementById('maxLevel').innerText = maxLevel;
-
-      // Show sections
-      document.getElementById('levelsSection').style.display = 'block';
-      document.getElementById('messagesSection').style.display = 'block';
+      document.querySelectorAll('#levelsSection, #messagesSection').forEach(el => el.style.display = 'block');
     } else if (!isNaN(targetLevel) && targetLevel > 0) {
-      // Only desired level provided, show overview
       const targetXP = xpRequired[targetLevel];
       document.getElementById('totalXPLevel').innerText = targetLevel;
       document.getElementById('totalXPRequired').innerText = targetXP.toLocaleString();
@@ -285,15 +165,53 @@
       document.getElementById('progressPercent').innerText = "0.00";
       document.getElementById('progressBar').style.width = '0%';
       document.getElementById('destLevelOutput').innerText = targetLevel;
-
-      // Show sections
-      document.getElementById('overviewSection').style.display = 'block';
-      document.getElementById('progressSection').style.display = 'block';
-      document.getElementById('levelsSection').style.display = 'block';
-      document.getElementById('timeSection').style.display = 'block';
+      document.querySelectorAll('#overviewSection, #progressSection, #levelsSection, #timeSection').forEach(el => el.style.display = 'block');
     }
   }
-</script>
 
+  function updateRange() {
+    document.getElementById('xpRangeValue').innerText = document.getElementById('xpRange').value;
+    updateForm();
+  }
+
+  function toggleCustomXP() {
+    const useCustomXP = document.getElementById('useCustomXP').checked;
+    document.getElementById('customXPRow').style.display = useCustomXP ? 'table-row' : 'none';
+    updateForm();
+  }
+
+  function toggleTheme() {
+    const theme = document.getElementById('themeToggle').value;
+    theme === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode');
+    if (theme === 'system') document.body.classList.toggle('dark-mode', window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+
+  window.onload = () => {
+    const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.body.classList.toggle('dark-mode', theme === 'dark');
+    document.getElementById('themeToggle').value = 'system';
+    fetch('updatelogs.txt')
+      .then(response => response.text())
+      .then(data => {
+        const lines = data.split('\n');
+        let logsHTML = '';
+        lines.forEach(line => {
+          if (line.startsWith('##')) logsHTML += `<li><strong>${line}</strong></li>`;
+          else if (line.startsWith('  -')) logsHTML += `<ul><li>${line}</li></ul>`;
+          else if (line.startsWith('-')) logsHTML += `<li>${line}</li>`;
+        });
+        document.getElementById('logsList').innerHTML = logsHTML;
+      });
+  }
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (document.getElementById('themeToggle').value === 'system') document.body.classList.toggle('dark-mode', e.matches);
+  });
+
+  function toggleLogs() {
+    const logs = document.getElementById('updateLogs');
+    logs.style.display = logs.style.display === 'none' ? 'block' : 'none';
+  }
+</script>
 </body>
 </html>
