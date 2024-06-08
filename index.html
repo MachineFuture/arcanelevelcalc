@@ -61,13 +61,13 @@
 <div id="messagesSection" class="section"><h3>Messages</h3><p id="minMessages">Min required: <span>0</span></p><p id="avgMessages">Avg required: <span>0</span></p><p id="maxMessages">Max required: <span>0</span></p><p id="customMessageCount" style="display:none;">Messages required to reach level <span id="customLevel">0</span>, if each message grants you <span id="customXP">0</span> XP: <span id="customMessages">0</span></p></div>
 <div id="timeSection" class="section"><h3>Time</h3><p>Fastest as possible: <span id="fastestTime">0</span></p><p id="realisticTimeP">Realistically (with one message per 15 minutes): <span id="realisticTime">0</span></p></div>
 
-<div id="credits"><p>Made by futuremachine on Discord. <b>Version 1.1.2c</b></p><p style="font-size: 0.8em;">Code by ChatGPT</p></div>
+<div id="credits"><p>Made by futuremachine on Discord. <b>Version 1.1.2d</b></p><p style="font-size: 0.8em;">Code by ChatGPT</p></div>
 <button onclick="toggleLogs()">Show/Hide Update Logs</button>
 <div id="updateLogs" class="section"><h3>Update Logs</h3><ul id="logsList"></ul></div>
 
 <script>
   const xpRequired = [0], xpIncrement = 75;
-  for (let i = 1; i <= 100000000000000; i++) xpRequired.push(xpRequired[i - 1] + xpIncrement + 100 * (i - 1));
+  for (let i = 1; i <= 10000; i++) xpRequired.push(xpRequired[i - 1] + xpIncrement + 100 * (i - 1));
 
   const formatTime = minutes => [
     { unit: 'year', minutes: 525600 }, { unit: 'month', minutes: 43800 }, { unit: 'week', minutes: 10080 },
