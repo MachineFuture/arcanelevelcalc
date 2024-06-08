@@ -1,3 +1,5 @@
+## Ver 1.1.1
+- Added a new feature to adjust the time gap between each message for accurate calculation
 ## Ver 1.1
 - Added new features:
   - theme switch

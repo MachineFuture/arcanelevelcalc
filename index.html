@@ -46,6 +46,7 @@
     <tr><td>Min XP per message:</td><td><input type="number" id="minXP" min="1" value="15" oninput="updateForm()"></td><td>Max XP per message:</td><td><input type="number" id="maxXP" min="1" value="40" oninput="updateForm()"></td></tr>
     <tr><td>XP Boost (%):</td><td colspan="3"><input type="number" id="xpBoost" min="0" value="0" style="width: 100%;" oninput="updateForm()"></td></tr>
     <tr><td>Message cooldown (minutes):</td><td colspan="3"><input type="number" id="msgInterval" min="1" value="1" style="width: 100%;" oninput="updateForm()"></td></tr>
+    <tr><td>Message gap (seconds):</td><td colspan="3"><input type="number" id="msgGap" min="1" value="30" style="width: 100%;" oninput="updateForm()"></td></tr>
     <tr><td>TotKcord role presets:</td><td colspan="3"><select id="levelReward" onchange="updateForm()"><option value="None">(None)</option><option value="Member">Member (1)</option><option value="Traveler">Traveler (3)</option><option value="Adventurer">Adventurer (6)</option><option value="Knight">Knight (10)</option><option value="Elder">Elder (15)</option><option value="Royal">Royal (20)</option><option value="Guardian">Guardian (30)</option><option value="Champion">Champion (40)</option><option value="Hero of the Wild">Hero of the Wild (50)</option><option value="Legend of the Wild">Legend of the Wild (75)</option><option value="Hero of the Kingdom">Hero of the Kingdom (100)</option></select></td></tr>
     <tr><td>Use custom XP per message:</td><td colspan="3"><input type="checkbox" id="useCustomXP" onchange="toggleCustomXP()"></td></tr>
     <tr id="customXPRow" style="display:none;"><td>XP per message:</td><td colspan="3"><input type="range" id="xpRange" min="15" max="40" value="27" oninput="updateRange()"><span id="xpRangeValue">27</span></td></tr>
@@ -56,11 +57,11 @@
 
 <div id="overviewSection" class="section"><h3>Overview</h3><p>Total XP required for level <span id="totalXPLevel">100</span>: <span id="totalXPRequired">0</span></p><p>Your current XP: <span id="currentTotalXP">0</span></p><p>XP left to reach level <span id="destLevelOutput">100</span>: <span id="requiredXP">0</span></p><p>XP left to reach next level (level <span id="nextLevel">0</span>): <span id="xpToNextLevel">0</span></p></div>
 <div id="progressSection" class="section"><h3>Progress</h3><p>Overall progress: <span id="progressPercent">0</span>%</p><div style="width: 100%; background-color: #e0e0e0;"><div id="progressBar" style="width: 0%; height: 30px; background-color: #76c7c0;"></div></div><p>Current level progress: <span id="currentLevelProgressPercent">0</span>%</p><div style="width: 100%; background-color: #e0e0e0;"><div id="currentLevelProgressBar" style="width: 0%; height: 30px; background-color: #76c7c0;"></div></div></div>
-<div id="levelsSection" class="section"><h3>Possible levels</h3><p>Min achievable: <span id="minLevel">0</span></p><p>Avg achievable: <span id="avgLevel">0</span></p><p>Max achievable: <span id="maxLevel">0</span></p></div>
+<div id="levelsSection" class="section"><h3>Possible levels</h3><p id="minAchievable"></p><p id="avgAchievable"></p><p id="maxAchievable"></p></div>
 <div id="messagesSection" class="section"><h3>Messages</h3><p id="minMessages">Min required: <span>0</span></p><p id="avgMessages">Avg required: <span>0</span></p><p id="maxMessages">Max required: <span>0</span></p><p id="customMessageCount" style="display:none;">Messages required to reach level <span id="customLevel">0</span>, if each message grants you <span id="customXP">0</span> XP: <span id="customMessages">0</span></p></div>
 <div id="timeSection" class="section"><h3>Time</h3><p>Fastest as possible: <span id="fastestTime">0</span></p><p id="realisticTimeP">Realistically (with one message per 15 minutes): <span id="realisticTime">0</span></p></div>
 
-<div id="credits"><p>Made by futuremachine on Discord. <b>Version 1.1</b></p><p style="font-size: 0.8em;">Code by ChatGPT</p></div>
+<div id="credits"><p>Made by futuremachine on Discord. <b>Version 1.1.1</b></p><p style="font-size: 0.8em;">Code by ChatGPT</p></div>
 <button onclick="toggleLogs()">Show/Hide Update Logs</button>
 <div id="updateLogs" class="section"><h3>Update Logs</h3><ul id="logsList"></ul></div>
 
@@ -97,6 +98,7 @@
           xpBoost = parseInt(document.getElementById('xpBoost').value) / 100 + 1,
           messageCount = parseInt(document.getElementById('messageCount').value),
           msgInterval = parseInt(document.getElementById('msgInterval').value),
+          msgGap = parseInt(document.getElementById('msgGap').value),
           useCustomXP = document.getElementById('useCustomXP').checked,
           levelRewardSelect = document.getElementById('levelReward');
 
@@ -150,12 +152,31 @@
       document.getElementById('realisticTime').innerText = realisticTime;
 
       document.querySelectorAll('#overviewSection, #progressSection, #levelsSection, #messagesSection, #timeSection').forEach(el => el.style.display = 'block');
-    } else if (!isNaN(messageCount) && messageCount > 0) {
-      const minLevel = calculateLevel(messageCount, minXP * xpBoost), avgLevel = calculateLevel(messageCount, avgXP * xpBoost), maxLevel = calculateLevel(messageCount, maxXP * xpBoost);
-      document.getElementById('minLevel').innerText = minLevel;
-      document.getElementById('avgLevel').innerText = avgLevel;
-      document.getElementById('maxLevel').innerText = maxLevel;
-      document.querySelectorAll('#levelsSection, #messagesSection').forEach(el => el.style.display = 'block');
+    }
+
+    if (!isNaN(messageCount) && messageCount > 0) {
+      const cooldownInSeconds = msgInterval * 60;
+      let effectiveMessages = messageCount;
+      if (msgGap < cooldownInSeconds) {
+        effectiveMessages = Math.floor(messageCount * (msgGap / cooldownInSeconds));
+      }
+
+      if (useCustomXP) {
+        const achievableLevel = calculateLevel(effectiveMessages, xpRangeValue * xpBoost);
+        document.getElementById('minAchievable').innerText = `Achievable if each message grants ${xpRangeValue} XP: ${achievableLevel}`;
+        document.getElementById('avgAchievable').innerText = '';
+        document.getElementById('maxAchievable').innerText = '';
+      } else {
+        const minLevel = calculateLevel(effectiveMessages, minXP * xpBoost),
+              avgLevel = calculateLevel(effectiveMessages, avgXP * xpBoost),
+              maxLevel = calculateLevel(effectiveMessages, maxXP * xpBoost);
+        document.getElementById('minAchievable').innerText = `Min achievable: ${minLevel}`;
+        document.getElementById('avgAchievable').innerText = `Avg achievable: ${avgLevel}`;
+        document.getElementById('maxAchievable').innerText = `Max achievable: ${maxLevel}`;
+      }
+
+      document.querySelectorAll('#levelsSection').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('#messagesSection').forEach(el => el.style.display = 'none');
     } else if (!isNaN(targetLevel) && targetLevel > 0) {
       const targetXP = xpRequired[targetLevel];
       document.getElementById('totalXPLevel').innerText = targetLevel;
@@ -191,8 +212,14 @@
     document.body.classList.toggle('dark-mode', theme === 'dark');
     document.getElementById('themeToggle').value = 'system';
     fetch('updatelogs.txt')
-      .then(response => response.text())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+      })
       .then(data => {
+        console.log('Data fetched from updatelogs.txt:', data); // Debug log
         const lines = data.split('\n');
         let logsHTML = '';
         lines.forEach(line => {
@@ -201,6 +228,9 @@
           else if (line.startsWith('-')) logsHTML += `<li>${line}</li>`;
         });
         document.getElementById('logsList').innerHTML = logsHTML;
+      })
+      .catch(error => {
+        console.error('Error fetching update logs:', error);
       });
   }
 
@@ -213,5 +243,13 @@
     logs.style.display = logs.style.display === 'none' ? 'block' : 'none';
   }
 </script>
+
+<!-- Embedding Metadata for Social Media -->
+<meta property="og:title" content="Arcane Level Calculator Deluxe">
+<meta property="og:description" content="A level calculator for arcane created by futuremachine on discord. It's like the official version but wayyyyy better, with multiple additional features!">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yourwebsite.com/arcanelevelcalc">
+<meta property="og:image" content="https://yourwebsite.com/path/to/image.png">
+
 </body>
 </html>
