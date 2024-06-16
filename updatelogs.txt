@@ -1,3 +1,5 @@
+## Ver 1.1.4
+- Fixed a bug that will always display as level 100 in the "XP left to reach level XX" section
 ## Ver 1.1.3
 - Fixed font display bug (old link doesn't work anymore)
 ## Ver 1.1.2
